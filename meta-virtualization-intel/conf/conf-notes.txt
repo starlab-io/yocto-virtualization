@@ -1,0 +1,2 @@
+Common targets:
+    - xen-dom0-image - USB / HDD img
