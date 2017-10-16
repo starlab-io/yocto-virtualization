@@ -10,16 +10,10 @@ IMAGE_INSTALL = " \
     ${@bb.utils.contains('MACHINE_FEATURES', 'acpi', 'kernel-module-xen-acpi-processor', '', d)} \
     kernel-module-xen-gntalloc \
     kernel-module-xen-gntdev \
-    kernel-module-xen-netback \
     ${@bb.utils.contains('MACHINE_FEATURES', 'pci', 'kernel-module-xen-pciback', '', d)} \
     kernel-module-xen-wdt \
     xen-base \
     "
-
-#IMAGE_INSTALL_append_intel-corei7-64 = "\
-#    kernel-module-ixgbe \
-#    kernel-module-igb \
-#  "
 
 inherit core-image
 
@@ -39,7 +33,7 @@ syslinux_populate_append() {
     install -m 0644 ${DEST}/initrd `readlink -f ${DEPLOY_DIR_IMAGE}/${INITRD_LIVE_FINAL}-${MACHINE}.cpio.gz`
 }
 
-SYSLINUX_XEN_ARGS ?= "loglvl=all guest_loglvl=all console=com1,vga com1=115200,8n1 iommu=force,intpost ucode=scan dom0pvh=0 dom0_mem=1024M,max:1024M dom0_max_vcpus=1 dom0_vcpus_pin flask=enforcing"
+SYSLINUX_XEN_ARGS ?= "loglvl=all guest_loglvl=all console=com1,vga com1=115200,8n1 iommu=force,intpost ucode=scan dom0pvh=0 dom0_mem=512M,max:512M dom0_max_vcpus=1 dom0_vcpus_pin flask=enforcing "
 SYSLINUX_KERNEL_ARGS ?= "ramdisk_size=32768 root=/dev/ram0 rw console=hvc0 earlyprintk=xen console=tty0 panic=10 LABEL=boot debugshell=5"
 
 build_syslinux_cfg () {

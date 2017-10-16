@@ -14,7 +14,7 @@ require xen-arch.inc
 PACKAGECONFIG ??= " \
     sdl \
     ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'systemd', '', d)} \
-    ${@bb.utils.contains('XEN_TARGET_ARCH', 'x86_64', 'hvm', '', d)} \
+    hvm \
     "
 
 FLASK_POLICY_FILE ?= "xenpolicy-${PV}"
@@ -60,6 +60,8 @@ DEPENDS = " \
 # inherit setuptools adds python to RDEPENDS, override it
 RDEPENDS_${PN} = ""
 
+RDEPENDS_${PN}-hvmloader += "seabios"
+
 RDEPENDS_${PN}-base = "\
     bash perl xz \
     ${PN}-blktap \
@@ -83,6 +85,7 @@ RDEPENDS_${PN}-base = "\
     ${PN}-xenstore \
     ${PN}-xenstored \
     ${PN}-xl \
+    ${PN}-startvms \
     "
 
 RDEPENDS_${PN}-dev = ""
@@ -211,6 +214,7 @@ PACKAGES = "\
     ${PN}-scripts-block \
     ${PN}-scripts-common \
     ${PN}-scripts-network \
+    ${PN}-startvms \
     ${PN}-staticdev \
     ${PN}-volatiles \
     ${PN}-xcutils \
@@ -757,8 +761,10 @@ FILES_${PN}-xendomains += "\
     ${systemd_unitdir}/system/xendomains.service \
     "
 
+FILES_${PN}-startvms += "${sysconfdir}/init.d/startvms"
+
 # configure init.d scripts
-INITSCRIPT_PACKAGES = "${PN}-xend ${PN}-xencommons ${PN}-xen-watchdog ${PN}-xendomains ${PN}-devd"
+INITSCRIPT_PACKAGES = "${PN}-xend ${PN}-xencommons ${PN}-xen-watchdog ${PN}-xendomains ${PN}-devd ${PN}-startvms"
 INITSCRIPT_NAME_${PN}-xencommons = "xencommons"
 INITSCRIPT_PARAMS_${PN}-xencommons = "defaults 80"
 INITSCRIPT_NAME_${PN}-xen-watchdog = "xen-watchdog"
@@ -769,6 +775,9 @@ INITSCRIPT_NAME_${PN}-xendomains = "xendomains"
 INITSCRIPT_PARAMS_${PN}-xendomains = "defaults 83"
 INITSCRIPT_NAME_${PN}-devd = "xendriverdomain"
 INITSCRIPT_PARAMS_${PN}-devd = "defaults 82"
+INITSCRIPT_NAME_${PN}-startvms = "startvms"
+INITSCRIPT_PARAMS_${PN}-startvms = "defaults 99"
+
 
 # systemd packages
 SYSTEMD_PACKAGES = "${PN}-xen-watchdog ${PN}-xencommons ${PN}-xendomains"
@@ -973,6 +982,8 @@ do_install() {
         sed -i 's#ExecStart=.*qemu-system-i386\(.*\)$#ExecStart=/usr/bin/qemu-system-i386\1#' \
             ${D}${systemd_unitdir}/system/xen-qemu-dom0-disk-backend.service
     fi
+
+    install -m 0755 ${WORKDIR}/startvms.sh ${D}${sysconfdir}/init.d/startvms
 }
 
 pkg_postinst_${PN}-volatiles() {

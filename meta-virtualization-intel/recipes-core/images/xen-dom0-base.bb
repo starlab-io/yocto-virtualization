@@ -15,6 +15,7 @@ DOMAIN_INSTALL = "\
     busybox \
     busybox-mdev \
     base-passwd \
+    e2fsprogs \
     packagegroup-core-boot \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
